@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blurred Image Gallery</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f4f4f9;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 90%;
+      width: 420px;
+    }
+
+    .img-container {
+      width: 100%;
+      height: 300px;
+      overflow: hidden;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      background-color: #e0e0e0;
+      position: relative;
+    }
+
+    /* Heavy blur filter applied by default */
+    .picture {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: blur(25px);
+      transition: filter 0.4s ease-in-out;
+    }
+
+    .picture.unblurred {
+      filter: blur(0px);
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    button {
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+    }
+
+    button.secondary {
+      background-color: #6c757d;
+    }
+
+    #errorMsg {
+      color: #d9534f;
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="img-container">
+      <img id="displayImg" class="picture" src="./images/photo1.jpg" alt="Gallery Photo">
+    </div>
+
+    <div class="controls">
+      <button id="prevBtn" class="secondary">Previous</button>
+      <button id="toggleBtn">Unblur</button>
+      <button id="nextBtn" class="secondary">Next</button>
+    </div>
+    
+    <p id="counter">Image 1 of 100</p>
+    <p id="errorMsg">Image failed to load. Check path or file name.</p>
+  </div>
+
+  <script>
+    // Explicit relative path structure: ./images/photo1.jpg ... ./images/photo100.jpg
+    const images = Array.from({ length: 100 }, (_, i) => `./images/photo${i + 1}.jpg`);
+    let currentIndex = 0;
+
+    const displayImg = document.getElementById('displayImg');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const counter = document.getElementById('counter');
+    const errorMsg = document.getElementById('errorMsg');
+
+    function updateImage() {
+      errorMsg.style.display = 'none';
+      displayImg.src = images[currentIndex];
+      displayImg.classList.remove('unblurred');
+      toggleBtn.textContent = 'Unblur';
+      counter.textContent = `Image ${currentIndex + 1} of ${images.length}`;
+    }
+
+    // Display error message if the current path fails
+    displayImg.onerror = () => {
+      errorMsg.textContent = `Failed to load: ${images[currentIndex]}`;
+      errorMsg.style.display = 'block';
+    };
+
+    toggleBtn.addEventListener('click', () => {
+      displayImg.classList.toggle('unblurred');
+      toggleBtn.textContent = displayImg.classList.contains('unblurred') ? 'Blur Again' : 'Unblur';
+    });
+
+    nextBtn.addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % images.length;
+      updateImage();
+    });
+
+    prevBtn.addEventListener('click', () => {
+      currentIndex = (currentIndex - 1 + images.length) % images.length;
+      updateImage();
+    });
+  </script>
+
+</body>
+</html>
