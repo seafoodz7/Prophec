@@ -3,17 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blurred Image Gallery</title>
+  <title>Vertical Blurred Image Gallery</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       min-height: 100vh;
       margin: 0;
       background-color: #f4f4f9;
+      padding: 30px 0;
+    }
+
+    /* Container holding all cards stacked vertically */
+    .gallery {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+      align-items: center;
     }
 
     .card {
@@ -51,7 +60,6 @@
 
     .controls {
       display: flex;
-      gap: 10px;
       justify-content: center;
     }
 
@@ -66,75 +74,63 @@
       color: white;
     }
 
-    button.secondary {
-      background-color: #6c757d;
-    }
-
-    #errorMsg {
+    .errorMsg {
       color: #d9534f;
       font-size: 13px;
       margin-top: 8px;
       display: none;
     }
+
+    .counter {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+    }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <div class="img-container">
-      <img id="displayImg" class="picture" src="./images/photo1.jpg" alt="Gallery Photo">
-    </div>
-
-    <div class="controls">
-      <button id="prevBtn" class="secondary">Previous</button>
-      <button id="toggleBtn">Unblur</button>
-      <button id="nextBtn" class="secondary">Next</button>
-    </div>
-    
-    <p id="counter">Image 1 of 100</p>
-    <p id="errorMsg">Image failed to load. Check path or file name.</p>
-  </div>
+  <!-- Vertical Stack Container -->
+  <div id="gallery" class="gallery"></div>
 
   <script>
-    // Explicit relative path structure: ./images/photo1.jpg ... ./images/photo100.jpg
-    const images = Array.from({ length: 100 }, (_, i) => `./images/photo${i + 1}.jpg`);
-    let currentIndex = 0;
+    const gallery = document.getElementById('gallery');
+    const totalImages = 100;
 
-    const displayImg = document.getElementById('displayImg');
-    const toggleBtn = document.getElementById('toggleBtn');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const counter = document.getElementById('counter');
-    const errorMsg = document.getElementById('errorMsg');
+    // Loop from 1 to 100 to generate cards sequentially from top to bottom
+    for (let i = 1; i <= totalImages; i++) {
+      const card = document.createElement('div');
+      card.className = 'card';
 
-    function updateImage() {
-      errorMsg.style.display = 'none';
-      displayImg.src = images[currentIndex];
-      displayImg.classList.remove('unblurred');
-      toggleBtn.textContent = 'Unblur';
-      counter.textContent = `Image ${currentIndex + 1} of ${images.length}`;
+      card.innerHTML = `
+        <div class="img-container">
+          <img class="picture" src="./images/photo${i}.jpg" alt="Photo ${i}">
+        </div>
+        <div class="controls">
+          <button class="toggleBtn">Unblur</button>
+        </div>
+        <p class="counter">Image ${i} of ${totalImages}</p>
+        <p class="errorMsg">Image failed to load. Check path or file name.</p>
+      `;
+
+      const img = card.querySelector('.picture');
+      const toggleBtn = card.querySelector('.toggleBtn');
+      const errorMsg = card.querySelector('.errorMsg');
+
+      // Individual unblur toggle for each photo card
+      toggleBtn.addEventListener('click', () => {
+        img.classList.toggle('unblurred');
+        toggleBtn.textContent = img.classList.contains('unblurred') ? 'Blur Again' : 'Unblur';
+      });
+
+      // Error handling if an image path fails on GitHub Pages
+      img.onerror = () => {
+        errorMsg.textContent = `Failed to load: ./images/photo${i}.jpg`;
+        errorMsg.style.display = 'block';
+      };
+
+      gallery.appendChild(card);
     }
-
-    // Display error message if the current path fails
-    displayImg.onerror = () => {
-      errorMsg.textContent = `Failed to load: ${images[currentIndex]}`;
-      errorMsg.style.display = 'block';
-    };
-
-    toggleBtn.addEventListener('click', () => {
-      displayImg.classList.toggle('unblurred');
-      toggleBtn.textContent = displayImg.classList.contains('unblurred') ? 'Blur Again' : 'Unblur';
-    });
-
-    nextBtn.addEventListener('click', () => {
-      currentIndex = (currentIndex + 1) % images.length;
-      updateImage();
-    });
-
-    prevBtn.addEventListener('click', () => {
-      currentIndex = (currentIndex - 1 + images.length) % images.length;
-      updateImage();
-    });
   </script>
 
 </body>
